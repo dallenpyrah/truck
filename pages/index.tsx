@@ -1,13 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Switch from 'react-switch';
 
 export default function Home() {
   const [isTruckHere, setIsTruckHere] = useState(false);
 
-  const handleChange = (checked: any) => {
-    setIsTruckHere(checked);
-  };
+  useEffect(() => {
+    fetch('/api/truck-status')
+      .then((res) => res.json())
+      .then((data) => setIsTruckHere(data.isTruckHere));
+  }, []);
 
+  const handleChange = async (checked: boolean) => {
+    setIsTruckHere(checked);
+    await fetch('/api/truck-status', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ isTruckHere: checked }),
+    });
+  };
   return (
     <div
       style={{
